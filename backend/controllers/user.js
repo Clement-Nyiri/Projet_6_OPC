@@ -10,7 +10,7 @@ exports.signup = (req, res, next) => {
             password: hash,
         });
         user.save()
-        .then(() => res.status(200).json({message: 'Utilisateur créé!'}))
+        .then(() => res.status(200).json({message: 'Nouvel Utilisateur créé!'}))
         .catch(error => res.status(400).json({error}))
     })
     .catch(error => res.status(500).json({error}));
@@ -31,7 +31,7 @@ exports.login = (req, res, next) => {
                 userId: user._id,
                 token:jwt.sign(
                     { userId: user._id },
-                    'RANDOM_TOKEN_SECRET',
+                    'Bearer RANDOM_TOKEN_SECRET',
                     { expiresIn: '24h'}
                 )
             });

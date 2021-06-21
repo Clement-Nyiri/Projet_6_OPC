@@ -71,3 +71,43 @@ exports.getAllSauces = (req, res, next) => {
     .then((sauces) => res.status(200).json(sauces))
     .catch(error => res.status(400).json({error: error}));
 };
+
+exports.postLike = (req,res,next) =>{
+  const userId = req.body.userId;
+  const likes = req.body.likes;
+  Sauce.findOne({_id: req.params.id})
+  .then((sauce) =>{
+    const tableauLike = sauce.userLiked;
+    const tableauDislike = sauce.usersDisliked;
+    const ilike = tableauLike.indexOf(userId)
+    if(ilike != -1){
+      tableauLike.splice(ilike, 1);
+    }
+    const idislike = tableauDislike.indexOf(userId)
+    if(idislike != -1){
+      tableauDislike.splice(idislike, 1);
+    }
+    
+    if(likes = 1){
+
+    }else if{likes = -1}
+
+  })
+  .catch(error =>res.status(500).json(error));
+
+}
+
+
+/*
+fonction like: 
+Avoir le userId -> req.body.userId OK
+
+Avoir likes OK
+si j'aime = 1, le user avec ce userId like
+si j'aime = 0, le user annule son like/dislike
+si j'aime = -1, le user avec ce userId dislike
+
+le userId doit être ajouté/supprimé de userLiked[] ou userDisliked[]
+un userId ne peut liker ou disliker qu'une fois
+Le nombre de likes et dislikes doit être mis à jour avec chaque like
+*/
