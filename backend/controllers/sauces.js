@@ -1,5 +1,6 @@
 const Sauce = require('../models/sauce');
 const fs = require('fs');
+const sauce = require('../models/sauce');
 
 exports.createSauce = (req, res, next) => {
   const SauceObject = JSON.parse(req.body.sauce);
@@ -75,39 +76,33 @@ exports.getAllSauces = (req, res, next) => {
 exports.postLike = (req,res,next) =>{
   const userId = req.body.userId;
   const likes = req.body.likes;
+  const dislikes = req.body.dislikes;
   Sauce.findOne({_id: req.params.id})
   .then((sauce) =>{
     const tableauLike = sauce.userLiked;
     const tableauDislike = sauce.usersDisliked;
+    // On récupère l'indice de l'utilisateur dans le tableau like
     const ilike = tableauLike.indexOf(userId)
     if(ilike != -1){
-      tableauLike.splice(ilike, 1);
-    }
-    const idislike = tableauDislike.indexOf(userId)
+      tableauLike.splice(ilike, 1); // On l'enlève du tableau;
+      likes--;
+    };
+
+    // On récupère l'indice de l'utilisateur dans le tableau dislike
+    const idislike = tableauDislike.indexOf(userId);
     if(idislike != -1){
-      tableauDislike.splice(idislike, 1);
-    }
+      tableauDislike.splice(idislike, 1); // On l'enlève du tableau
+      dislikes--;
+    };
     
     if(likes = 1){
-
-    }else if{likes = -1}
-
-  })
+      tableauLike.push(userId);//Ensuite, si le user aime, on le rajoute au tableau like
+      likes++;
+    }else if(likes = -1){
+      tableauDislike.push(userId); //Ensuite, si le user n'aime pas, on le rajoute au tableau dislike
+      dislikes++;
+    }})
+    sauce.save()
   .catch(error =>res.status(500).json(error));
 
-}
-
-
-/*
-fonction like: 
-Avoir le userId -> req.body.userId OK
-
-Avoir likes OK
-si j'aime = 1, le user avec ce userId like
-si j'aime = 0, le user annule son like/dislike
-si j'aime = -1, le user avec ce userId dislike
-
-le userId doit être ajouté/supprimé de userLiked[] ou userDisliked[]
-un userId ne peut liker ou disliker qu'une fois
-Le nombre de likes et dislikes doit être mis à jour avec chaque like
-*/
+};
