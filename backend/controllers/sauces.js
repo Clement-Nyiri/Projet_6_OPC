@@ -5,7 +5,6 @@ const sauce = require('../models/sauce');
 exports.createSauce = (req, res, next) => {
   const SauceObject = JSON.parse(req.body.sauce);
   const sauce = new Sauce({
-    id: SauceObject.id,
     userId: SauceObject.userId,
     name: SauceObject.name,
     manufacturer: SauceObject.manufacturer,
@@ -13,13 +12,13 @@ exports.createSauce = (req, res, next) => {
     mainPepper: SauceObject.mainPepper,
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
     heat: SauceObject.heat,
-    likes: SauceObject.likes,
-    dislikes: SauceObject.dislikes,
-    usersLiked: SauceObject.usersLiked,
-    usersDisliked: SauceObject.usersDisliked
+    likes: 0,
+    dislikes: 0,
+    usersLiked: [],
+    usersDisliked: []
   });
   sauce.save()
-  .then(() => res.status(201).json({message: 'Votre sauce a bien été ajoutée!'}))
+  .then((sauce) => res.status(201).json({sauce}))
   .catch(error => res.status(400).json({error: error}));
 };
 
@@ -70,39 +69,34 @@ exports.deleteSauce = (req, res, next) => {
 exports.getAllSauces = (req, res, next) => {
     Sauce.find()
     .then((sauces) => res.status(200).json(sauces))
-    .catch(error => res.status(400).json({error: error}));
+    .catch(error => res.status(418).json({error: error}));
 };
 
 exports.postLike = (req,res,next) =>{
   const userId = req.body.userId;
-  const likes = req.body.likes;
-  const dislikes = req.body.dislikes;
+  const likeUser = req.body.like;
   Sauce.findOne({_id: req.params.id})
-  .then((sauce) =>{
-    const tableauLike = sauce.userLiked;
-    const tableauDislike = sauce.usersDisliked;
-    // On récupère l'indice de l'utilisateur dans le tableau like
-    const ilike = tableauLike.indexOf(userId)
-    if(ilike != -1){
-      tableauLike.splice(ilike, 1); // On l'enlève du tableau;
-      likes--;
-    };
-
-    // On récupère l'indice de l'utilisateur dans le tableau dislike
-    const idislike = tableauDislike.indexOf(userId);
-    if(idislike != -1){
-      tableauDislike.splice(idislike, 1); // On l'enlève du tableau
-      dislikes--;
-    };
-    
-    if(likes = 1){
-      tableauLike.push(userId);//Ensuite, si le user aime, on le rajoute au tableau like
-      likes++;
-    }else if(likes = -1){
-      tableauDislike.push(userId); //Ensuite, si le user n'aime pas, on le rajoute au tableau dislike
-      dislikes++;
-    }})
-    sauce.save()
-  .catch(error =>res.status(500).json(error));
-
+    .then((sauce) => {
+      const ilike = sauce.usersLiked.indexOf(userId)
+      if(ilike != -1){
+        sauce.usersLiked.splice(ilike, 1); // On l'enlève du tableau;
+        sauce.likes=sauce.likes-1;
+      };
+      // On récupère l'indice de l'utilisateur dans le tableau dislike
+      const idislike = sauce.usersDisliked.indexOf(userId);
+      if(idislike != -1){
+        sauce.usersDisliked.splice(idislike, 1); // On l'enlève du tableau
+        sauce.dislikes=sauce.dislikes-1;
+      };
+      if(likeUser == 1){
+        sauce.usersLiked.push(userId);//Ensuite, si le user aime, on le rajoute au tableau like
+        sauce.likes = sauce.likes+1;
+      };
+      if(likeUser == -1){
+        sauce.usersDisliked.push(userId); //Ensuite, si le user n'aime pas, on le rajoute au tableau dislike
+        sauce.dislikes = sauce.dislikes+1;
+      };
+      sauce.save()
+      res.status(200).json(sauce)})
+    .catch(error => res.status(518).json({error: error}));
 };

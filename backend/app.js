@@ -6,7 +6,7 @@ const path = require('path');
 const saucesRoutes = require('./routes/sauces');
 const userRoutes = require('./routes/user');
 
-mongoose.connect('mongodb+srv://Clement:Cassis59175@cluster0.frcgr.mongodb.net/Cluster0?retryWrites=true&w=majority',
+mongoose.connect('mongodb+srv://Clement:Cassis59175@lapiquante.frcgr.mongodb.net/LaPiquante?retryWrites=true&w=majority',
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
@@ -25,6 +25,6 @@ app.use(bodyParser.json());
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api/sauces', saucesRoutes);
-app.use('api/auth', userRoutes);
+app.use('/api/auth', userRoutes);
  
 module.exports = app;
